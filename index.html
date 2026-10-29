@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Logico Digital — Shopify, WordPress &amp; Klaviyo Studio</title>
+<meta name="description" content="Logico Digital builds Shopify stores, WordPress sites, Klaviyo email flows, and custom frontend work for growing brands.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* layout concept: a circuit-trace grid — thin horizontal rules like PCB traces
+     stitch numbered sections together inside an asymmetric 12-col frame,
+     with generous dark negative space and mono-type "signal" labels */
+  :root{
+    --bg:#0A0D13;
+    --surface:#11151E;
+    --surface-2:#161B26;
+    --fg:#E8EBF1;
+    --fg-dim:#8992A6;
+    --accent:#5B6CFF;
+    --accent-2:#2BD9B9;
+    --line:rgba(233,237,245,0.10);
+    --line-strong:rgba(233,237,245,0.18);
+    color-scheme: dark;
+
+    --font-display:'Sora',system-ui,-apple-system,sans-serif;
+    --font-body:'IBM Plex Sans',system-ui,-apple-system,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#F4F5F8;
+      --surface:#FFFFFF;
+      --surface-2:#ECEEF3;
+      --fg:#10131B;
+      --fg-dim:#5B6378;
+      --accent:#4348D6;
+      --accent-2:#0A9A82;
+      --line:rgba(16,19,27,0.10);
+      --line-strong:rgba(16,19,27,0.20);
+      color-scheme: light;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#F4F5F8;
+    --surface:#FFFFFF;
+    --surface-2:#ECEEF3;
+    --fg:#10131B;
+    --fg-dim:#5B6378;
+    --accent:#4348D6;
+    --accent-2:#0A9A82;
+    --line:rgba(16,19,27,0.10);
+    --line-strong:rgba(16,19,27,0.20);
+    color-scheme: light;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;}
+  body{
+    background:var(--bg);
+    color:var(--fg);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.55;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms!important; animation-iteration-count:1!important; transition-duration:0.001ms!important;}
+  }
+
+  .wrap{max-width:1160px; margin:0 auto; width:100%;}
+  h1,h2,h3{font-family:var(--font-display); font-weight:700; line-height:1.08; letter-spacing:-0.01em; text-wrap:balance; margin:0;}
+  p{margin:0;}
+  a{color:inherit; text-decoration:none;}
+  .label{
+    font-family:var(--font-mono); font-size:12.5px; letter-spacing:0.08em; text-transform:uppercase;
+    color:var(--accent-2);
+  }
+  .rule{height:1px; background:var(--line); border:0;}
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:30;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  body::before{
+    content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:31; background:var(--bg);
+  }
+  .nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 0;
+  }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+    font-family:var(--font-display); font-weight:800; font-size:18px; letter-spacing:-0.01em;
+  }
+  .logo .dot{
+    width:9px; height:9px; border-radius:2px; background:var(--accent);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+    flex:none;
+  }
+  nav.links{display:flex; gap:28px; align-items:center;}
+  nav.links a{font-size:14.5px; color:var(--fg-dim); transition:color .15s ease;}
+  nav.links a:hover{color:var(--fg);}
+  .btn{
+    font-family:var(--font-body); font-weight:600; font-size:14px;
+    padding:10px 18px; border-radius:7px; border:1px solid transparent;
+    display:inline-flex; align-items:center; gap:8px; cursor:pointer;
+    transition:transform .12s ease, opacity .15s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{opacity:0.9;}
+  .btn-ghost{border-color:var(--line-strong); color:var(--fg);}
+  .btn-ghost:hover{border-color:var(--accent);}
+  .nav-cta{display:flex; align-items:center; gap:14px;}
+  .burger{display:none; background:none; border:0; color:var(--fg); padding:6px; cursor:pointer;}
+  .burger svg{width:22px; height:22px;}
+  .mobile-panel{display:none; flex-direction:column; gap:4px; padding:4px 0 18px;}
+  .mobile-panel a{padding:10px 2px; font-size:15px; color:var(--fg); border-bottom:1px solid var(--line);}
+  @media (max-width:760px){
+    nav.links{display:none;}
+    .nav-cta .btn-ghost{display:none;}
+    .burger{display:block;}
+    .mobile-panel.open{display:flex;}
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding:84px 0 64px;
+    display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center;
+  }
+  .hero h1{font-size:clamp(34px,5vw,58px);}
+  .hero .sub{
+    margin-top:20px; font-size:17.5px; color:var(--fg-dim); max-width:520px;
+  }
+  .hero .cta-row{display:flex; gap:12px; margin-top:32px; flex-wrap:wrap;}
+  .hero .btn{padding:13px 22px; font-size:15px;}
+  .trust{
+    margin-top:40px; display:flex; gap:28px; flex-wrap:wrap;
+  }
+  .trust .item{font-family:var(--font-mono); font-size:12.5px; color:var(--fg-dim); letter-spacing:0.02em;}
+  .trust .item b{color:var(--fg); font-weight:500;}
+
+  .circuit-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:22px; min-width:0;
+  }
+  .circuit-card .path-label{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px;}
+  .circuit-card svg{width:100%; height:auto; display:block;}
+  .term-line{font-family:var(--font-mono); font-size:12.5px; color:var(--fg-dim); margin-top:14px; display:flex; gap:10px;}
+  .term-line .ok{color:var(--accent-2);}
+
+  @media (max-width:860px){
+    .hero{grid-template-columns:1fr; padding-top:48px;}
+  }
+
+  /* ---------- section shell ---------- */
+  section{padding:76px 0;}
+  .section-head{
+    display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:40px; flex-wrap:wrap;
+  }
+  .section-head h2{font-size:clamp(26px,3.4vw,38px); max-width:560px;}
+  .section-head .desc{color:var(--fg-dim); max-width:380px; font-size:15px;}
+
+  /* ---------- services ---------- */
+  .services-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:14px; overflow:hidden;
+  }
+  .service{background:var(--surface); padding:30px 26px; min-width:0;}
+  .service .idx{font-family:var(--font-mono); color:var(--accent-2); font-size:12.5px;}
+  .service h3{font-size:19px; margin-top:14px; font-family:var(--font-display); font-weight:600;}
+  .service p{margin-top:10px; font-size:14.5px; color:var(--fg-dim);}
+  @media (max-width:860px){ .services-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:560px){ .services-grid{grid-template-columns:1fr;} }
+
+  /* ---------- process ---------- */
+  .process{display:flex; flex-direction:column;}
+  .step{
+    display:grid; grid-template-columns:72px 1fr; gap:22px; padding:26px 0; border-top:1px solid var(--line);
+  }
+  .step:first-child{border-top:1px solid var(--line-strong);}
+  .step .num{font-family:var(--font-mono); font-size:14px; color:var(--accent);}
+  .step h3{font-size:19px; font-family:var(--font-display); font-weight:600;}
+  .step p{margin-top:8px; color:var(--fg-dim); font-size:15px; max-width:620px;}
+  @media (max-width:560px){ .step{grid-template-columns:40px 1fr;} }
+
+  /* ---------- work ---------- */
+  .work-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .work-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:26px; min-width:0;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .work-card .tag{font-family:var(--font-mono); font-size:11.5px; color:var(--fg-dim); letter-spacing:0.05em; text-transform:uppercase;}
+  .work-card h3{font-size:19px; font-family:var(--font-display); font-weight:600;}
+  .work-card p{font-size:14.5px; color:var(--fg-dim);}
+  .work-card .stack{display:flex; gap:6px; flex-wrap:wrap; margin-top:auto;}
+  .chip{
+    font-family:var(--font-mono); font-size:11px; padding:4px 9px; border-radius:100px;
+    border:1px solid var(--line-strong); color:var(--fg-dim);
+  }
+  @media (max-width:860px){ .work-grid{grid-template-columns:1fr;} }
+
+  /* ---------- why / stats ---------- */
+  .why-wrap{
+    background:var(--surface); border:1px solid var(--line); border-radius:14px;
+    padding:44px 36px; display:grid; grid-template-columns:1fr 1fr; gap:40px;
+  }
+  .why-list{display:flex; flex-direction:column; gap:22px;}
+  .why-item{display:flex; gap:14px;}
+  .why-item .mark{font-family:var(--font-mono); color:var(--accent-2); flex:none;}
+  .why-item p{font-size:15px; color:var(--fg-dim);}
+  .why-item b{color:var(--fg); font-weight:600;}
+  @media (max-width:760px){ .why-wrap{grid-template-columns:1fr; padding:30px 22px;} }
+
+  /* ---------- cta ---------- */
+  .cta-band{
+    background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 16%, var(--surface)), var(--surface));
+    border:1px solid var(--line); border-radius:16px; padding:56px 44px;
+    display:flex; align-items:center; justify-content:space-between; gap:30px; flex-wrap:wrap;
+  }
+  .cta-band h2{font-size:clamp(24px,3vw,32px); max-width:480px;}
+  .cta-band .desc{color:var(--fg-dim); margin-top:10px; max-width:460px; font-size:15px;}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--line); padding:48px 0 56px;}
+  .foot-grid{display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:36px;}
+  .foot-col h4{font-family:var(--font-mono); font-size:12px; letter-spacing:0.07em; text-transform:uppercase; color:var(--fg-dim); margin-bottom:14px; font-weight:500;}
+  .foot-col a, .foot-col .line{display:block; font-size:14.5px; color:var(--fg); margin-bottom:9px;}
+  .foot-col a:hover{color:var(--accent);}
+  .copy-email{font-family:var(--font-mono); font-size:14.5px; color:var(--fg); cursor:pointer; background:var(--surface-2); border:1px solid var(--line-strong); border-radius:7px; padding:9px 12px; display:inline-flex; align-items:center; gap:8px;}
+  .bottom-row{
+    margin-top:40px; padding-top:24px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    font-size:13px; color:var(--fg-dim);
+  }
+  @media (max-width:700px){ .foot-grid{grid-template-columns:1fr 1fr;} }
+  @media (max-width:480px){ .foot-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="nav">
+      <a class="logo" href="#top">
+        <span class="dot"></span> Logico Digital
+      </a>
+      <nav class="links">
+        <a href="#services">Services</a>
+        <a href="#process">Process</a>
+        <a href="#work">Work</a>
+        <a href="#why">Why us</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn btn-ghost" href="#contact">Contact</a>
+        <a class="btn btn-primary" href="#contact">Start a project</a>
+        <button class="burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="mobile-panel" id="mobilePanel">
+      <a href="#services">Services</a>
+      <a href="#process">Process</a>
+      <a href="#work">Work</a>
+      <a href="#why">Why us</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <section class="hero" style="padding-top:64px;">
+      <div>
+        <p class="label">Shopify · WordPress · Klaviyo · Frontend</p>
+        <h1 style="margin-top:16px;">Digital products, built on logic.</h1>
+        <p class="sub">Logico Digital builds Shopify and WordPress stores, writes the Klaviyo flows that sell after the click, and ships the frontend work that holds it all together. One team, from first wireframe to the backlog after launch.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#contact">Start a project</a>
+          <a class="btn btn-ghost" href="#work">See our work</a>
+        </div>
+        <div class="trust">
+          <div class="item"><b>Shopify &amp; WordPress</b> certified builds</div>
+          <div class="item"><b>2-week</b> sprint cycles</div>
+          <div class="item"><b>100%</b> code ownership, yours</div>
+        </div>
+      </div>
+
+      <div class="circuit-card">
+        <div class="path-label">
+          <span class="label">build.log</span>
+          <span class="label" style="color:var(--fg-dim);">live</span>
+        </div>
+        <svg viewBox="0 0 400 220" aria-hidden="true">
+          <g stroke="var(--line-strong)" stroke-width="1.5" fill="none">
+            <path d="M20 40 H160 V90 H320" />
+            <path d="M20 110 H100 V160 H280 V190 H360" />
+            <path d="M20 190 H60" />
+          </g>
+          <g stroke="var(--accent)" stroke-width="2.4" fill="none" stroke-linecap="round">
+            <path id="trace1" d="M20 40 H160 V90 H320" stroke-dasharray="6 10"/>
+          </g>
+          <g stroke="var(--accent-2)" stroke-width="2.4" fill="none" stroke-linecap="round">
+            <path id="trace2" d="M20 110 H100 V160 H280 V190 H360" stroke-dasharray="6 10"/>
+          </g>
+          <g fill="var(--accent)"><circle cx="20" cy="40" r="4"/><circle cx="320" cy="90" r="4"/></g>
+          <g fill="var(--accent-2)"><circle cx="20" cy="110" r="4"/><circle cx="360" cy="190" r="4"/></g>
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--fg-dim)">
+            <text x="24" y="32">design()</text>
+            <text x="250" y="82">deploy()</text>
+            <text x="24" y="102">build()</text>
+            <text x="300" y="182">ship()</text>
+          </g>
+        </svg>
+        <div class="term-line"><span class="ok">&gt;</span> status: discovery → design → build → launch → grow</div>
+      </div>
+    </section>
+
+    <div class="rule"></div>
+
+    <section id="services">
+      <div class="section-head">
+        <h2>Four platforms. One team that actually knows them.</h2>
+        <p class="desc">We don't spread thin across every stack. Shopify, WordPress, Klaviyo, and frontend engineering are what we do all day, every day.</p>
+      </div>
+      <div class="services-grid">
+        <div class="service">
+          <div class="idx">01</div>
+          <h3>Shopify Development</h3>
+          <p>Custom themes, headless storefronts on Hydrogen, and app integrations built for stores that outgrew their last build.</p>
+        </div>
+        <div class="service">
+          <div class="idx">02</div>
+          <h3>WordPress Development</h3>
+          <p>Custom themes and Gutenberg blocks on a codebase your team can actually edit, not a plugin stack held together with hope.</p>
+        </div>
+        <div class="service">
+          <div class="idx">03</div>
+          <h3>Klaviyo &amp; Email Marketing</h3>
+          <p>Flow and segment strategy, template design, and the data wiring so every email is based on what a customer actually did.</p>
+        </div>
+        <div class="service">
+          <div class="idx">04</div>
+          <h3>Frontend Development</h3>
+          <p>React and Next.js builds for the pages a theme can't handle — custom quizzes, configurators, and account dashboards.</p>
+        </div>
+        <div class="service">
+          <div class="idx">05</div>
+          <h3>Migrations</h3>
+          <p>Moving a store or site to Shopify or WordPress without losing SEO rankings, order history, or customer data.</p>
+        </div>
+        <div class="service">
+          <div class="idx">06</div>
+          <h3>Performance &amp; CRO</h3>
+          <p>Page-speed fixes and conversion-rate testing on the pages that already get traffic, so growth doesn't need new budget.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="rule"></div>
+
+    <section id="process">
+      <div class="section-head">
+        <h2>How a project actually runs.</h2>
+        <p class="desc">Five stages, each one ending in something you can see — not a status update.</p>
+      </div>
+      <div class="process">
+        <div class="step">
+          <div class="num">01</div>
+          <div>
+            <h3>Discover</h3>
+            <p>We audit your current site, your competitors, and your goals, then write a short brief we both sign off on before any design work starts.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">02</div>
+          <div>
+            <h3>Design</h3>
+            <p>Wireframes first, then high-fidelity screens in Figma. You review and comment directly — nothing goes to development until you've signed off.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">03</div>
+          <div>
+            <h3>Build</h3>
+            <p>One- to two-week sprints, with a staging link you can check at any time. No black-box month of silence.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">04</div>
+          <div>
+            <h3>Launch</h3>
+            <p>Cross-browser and cross-device QA, analytics and tracking wired up, and a rollback plan in place before we flip the switch.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="num">05</div>
+          <div>
+            <h3>Grow</h3>
+            <p>Monthly reporting and a prioritized backlog of improvements, based on how real visitors actually use the site.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="rule"></div>
+
+    <section id="work">
+      <div class="section-head">
+        <h2>Selected work</h2>
+        <p class="desc">Representative engagements across industries. Client names withheld under NDA.</p>
+      </div>
+      <div class="work-grid">
+        <div class="work-card">
+          <span class="tag">Publishing · Media</span>
+          <h3>Project Atlas</h3>
+          <p>Migrated a legacy CMS to WordPress with custom Gutenberg blocks, cutting average page load by rebuilding the theme from scratch.</p>
+          <div class="stack"><span class="chip">WordPress</span><span class="chip">Gutenberg</span><span class="chip">ACF</span></div>
+        </div>
+        <div class="work-card">
+          <span class="tag">Direct-to-consumer retail</span>
+          <h3>Project Harbor</h3>
+          <p>Headless Shopify storefront with a custom size-finder quiz and same-day fulfillment integration.</p>
+          <div class="stack"><span class="chip">Shopify</span><span class="chip">Hydrogen</span><span class="chip">Klaviyo</span></div>
+        </div>
+        <div class="work-card">
+          <span class="tag">Beauty · DTC</span>
+          <h3>Project Northline</h3>
+          <p>Custom React product configurator embedded in a Shopify theme, with Klaviyo flows triggered the moment a build is saved.</p>
+          <div class="stack"><span class="chip">React</span><span class="chip">Shopify</span><span class="chip">Klaviyo</span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="rule"></div>
+
+    <section id="why">
+      <div class="section-head">
+        <h2>Why teams work with Logico</h2>
+        <p class="desc">No account managers relaying messages — you talk to the people writing the code.</p>
+      </div>
+      <div class="why-wrap">
+        <div class="why-list">
+          <div class="why-item">
+            <span class="mark">→</span>
+            <p><b>Direct access to your team.</b> You're in Slack or email with the designer and developer on your project, not a layer of account management.</p>
+          </div>
+          <div class="why-item">
+            <span class="mark">→</span>
+            <p><b>Fixed sprint cadence.</b> Work ships in one- to two-week cycles with a staging link, so you always know what "in progress" looks like.</p>
+          </div>
+          <div class="why-item">
+            <span class="mark">→</span>
+            <p><b>You own everything.</b> Source code, design files, and content live in your accounts — no proprietary platform lock-in.</p>
+          </div>
+        </div>
+        <div class="why-list">
+          <div class="why-item">
+            <span class="mark">→</span>
+            <p><b>Deep in four platforms.</b> Shopify, WordPress, Klaviyo, and custom frontend work — not a generalist team learning on your dime.</p>
+          </div>
+          <div class="why-item">
+            <span class="mark">→</span>
+            <p><b>Built to be measured.</b> Analytics and conversion tracking are part of the build, not an afterthought you add post-launch.</p>
+          </div>
+          <div class="why-item">
+            <span class="mark">→</span>
+            <p><b>Support after launch.</b> A maintenance plan with real response times, not a one-line "email us anytime."</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="rule"></div>
+
+    <section id="contact">
+      <div class="cta-band">
+        <div>
+          <h2>Have a project in mind?</h2>
+          <p class="desc">Tell us what you're building. We reply within one business day with next steps and a rough estimate.</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; align-items:flex-start;">
+          <button class="copy-email" id="copyEmailBtn" type="button">
+            <span id="emailText">hello@logicodigital.com</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </button>
+          <a class="btn btn-primary" href="https://www.upwork.com/freelancers/~01698e4c9070b14f23" target="_blank" rel="noopener">View our Upwork profile</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <a class="logo" href="#top" style="margin-bottom:12px;"><span class="dot"></span> Logico Digital</a>
+        <p style="color:var(--fg-dim); font-size:14px; max-width:320px; margin-top:12px;">A web design and development studio building Shopify stores, WordPress sites, Klaviyo flows, and custom frontend for growing brands.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Studio</h4>
+        <a href="#services">Services</a>
+        <a href="#process">Process</a>
+        <a href="#work">Work</a>
+        <a href="#why">Why us</a>
+      </div>
+      <div class="foot-col">
+        <h4>Contact</h4>
+        <span class="line">hello@logicodigital.com</span>
+        <a href="https://www.upwork.com/freelancers/~01698e4c9070b14f23" target="_blank" rel="noopener">Upwork profile</a>
+        <span class="line" style="color:var(--fg-dim);">Remote-first, working worldwide</span>
+      </div>
+    </div>
+    <div class="bottom-row">
+      <span>© <span id="year">2026</span> Logico Digital. All rights reserved.</span>
+      <span>Built with logic, shipped with care.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    try{ document.getElementById('year').textContent = new Date().getFullYear(); }catch(e){}
+
+    var burger = document.getElementById('burgerBtn');
+    var panel = document.getElementById('mobilePanel');
+    if(burger && panel){
+      burger.addEventListener('click', function(){
+        var isOpen = panel.classList.toggle('open');
+        burger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+      panel.querySelectorAll('a').forEach(function(a){
+        a.addEventListener('click', function(){ panel.classList.remove('open'); burger.setAttribute('aria-expanded','false'); });
+      });
+    }
+
+    var copyBtn = document.getElementById('copyEmailBtn');
+    var emailText = document.getElementById('emailText');
+    if(copyBtn && emailText){
+      copyBtn.addEventListener('click', function(){
+        var value = 'hello@logicodigital.com';
+        var done = function(){
+          var original = emailText.textContent;
+          emailText.textContent = 'Copied!';
+          setTimeout(function(){ emailText.textContent = original; }, 1500);
+        };
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(value).then(done).catch(function(){
+            selectFallback();
+          });
+        } else {
+          selectFallback();
+        }
+        function selectFallback(){
+          try{
+            var range = document.createRange();
+            range.selectNodeContents(emailText);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+          }catch(e){}
+        }
+      });
+    }
+  })();
+</script>
+</body>
+</html>
